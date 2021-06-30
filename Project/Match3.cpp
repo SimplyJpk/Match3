@@ -348,7 +348,7 @@ bool Match3::ClearMatches()
       }
    }
 
-   if (world_clear_array_.size() > 0) {
+   if (!world_clear_array_.empty()) {
       isChanged = true;
       for (auto index : world_clear_array_)
       {
