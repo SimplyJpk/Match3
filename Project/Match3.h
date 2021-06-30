@@ -39,7 +39,7 @@ public:
    void ProgressGame();
 
    // Helpers
-   bool CheckMatches(int x, int y, bool vertical);
+   short CheckMatches(int x, int y);
    int GetCellIndex(int x, int y) const;
    bool IsMatch(int cell_a, int cell_b, int cell_c);
    bool IsValidCell(int x, int y) const;
@@ -58,6 +58,7 @@ private:
    void ResetWorld();
 
    bool ClearMatches();
+   bool CheckForMatches();
    bool StepCellsDown();
 
    bool no_valid_moves_ = false;

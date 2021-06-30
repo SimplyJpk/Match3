@@ -32,8 +32,7 @@ inline Uint32 g_cell_colours[CELL_TYPE_COUNT] = {
 
 enum MatchType
 {
-   NONE = 0,
-   TOP = 1,
-   CENTER = 2,
-   BOTTOM = 3
+   VERTICAL = -1,
+   NO_MATCH = 0,
+   HORIZONTAL = 1
 };
