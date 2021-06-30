@@ -178,9 +178,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
-    <ClInclude Include="CellData.h" />
+    <ClInclude Include="CellTypes.h" />
     <ClInclude Include="ConfigFile.h" />
     <ClInclude Include="Constants.h" />
+    <ClInclude Include="ExtraInfoGUI.h" />
     <ClInclude Include="FloatExtensions.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameObject.h" />
@@ -197,6 +198,7 @@
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="IO.h" />
     <ClInclude Include="ISerializable.h" />
+    <ClInclude Include="IVec2.h" />
     <ClInclude Include="Match3.h" />
     <ClInclude Include="ShaderManager.h" />
     <ClInclude Include="TextureUtility.h" />
@@ -205,14 +207,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="shaders\orthoUI.frag">
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
-    </None>
-    <None Include="shaders\orthoUI.vert">
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
-    </None>
     <None Include="shaders\orthoWorld.frag">
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>

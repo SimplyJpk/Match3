@@ -1,87 +1,84 @@
 #pragma once
 #include <cstdio>
-#include <ctime>
 #include <SDL_stdinc.h>
 #include <GL/glew.h>
 
 
-#include "CellData.h"
-#include "Constants.h"
+#include "CellTypes.h"
 #include "GameObject.h"
 #include "GameSettings.h"
 #include "IVec2.h"
-#include "TextureUtility.h"
 #include "Camera.h"
+#include "ExtraInfoGUI.h"
 
 class Match3 : public GameObject
 {
 public:
-   Uint32 CellTypeColours[CELL_TYPE_COUNT] = {
-      0x00000000,
-      0xFF0000FF,
-      0x00FF00FF,
-      0x0000FFFF,
-      0xFFFF00FF,
-      0xFFFFFFFF,
-   };
+   // Used for some additional on-screen information
+   ExtraInfoGUI g_extraInfo;
+
+   enum CellMove { FROM = 0, TO = 1 };
 
    GameSettings* game_settings;
 
-   int world_width;
-   int world_height;
-   int world_total_size;
-   int cellTypesUsed = 0;
-   // CellData* WorldData = nullptr;
-
-   int* WorldData = nullptr;
-   std::vector<int> worldClearArray;
+   int g_world_width;
+   int g_world_height;
+   int g_world_total_size;
+   int g_cell_types_used = 0;
 
    Match3(GameSettings* settings);
 
-   void PrintWorldAsText();
+   // Required by Technical Sheet
+   void PrintWorldAsText() const;
    bool GeneratePlayField(Uint32 width, Uint32 height, Uint32 numTypes);
-   bool Step(IVec2 fromCell, IVec2 toCell);
 
+   bool AnyLegalMatchesExist(IVec2 move[]);
+   bool Step(IVec2 from_cell, IVec2 to_cell);
+
+   // General Purpose
    void ProgressGame();
-   void ClearMatches();
-   bool CheckMatches(int x, int y, bool vertical);
-   void MoveCellsDown();
-   void RegenCellsInRowMissing(int row);
 
-   bool AnyLegalMatchesExist(bool makeMove);
-   bool IsMatch(int cellA, int CellB, int CellC);
+   // Helpers
+   bool CheckMatches(int x, int y, bool vertical);
+   int GetCellIndex(int x, int y) const;
+   bool IsMatch(int cell_a, int cell_b, int cell_c);
    bool IsValidCell(int x, int y) const;
 
+   // Inherited
    void Start() override;
    bool Draw(Camera* camera) override;
 
 private:
-   int CellIndex(int x, int y) const;
-   int GetNewRandomCell() const;
+   int* world_data_ = nullptr;
 
-   static int Random(int min, int max)
+   void SwapCellValues(IVec2 from_cell, IVec2 to_cell);
+   int GetNewRandomCell() const;
+   bool CreateCellsMissingInRow(int row);
+   void SetWorldCells(CellTypes type);
+   void ResetWorld();
+
+   bool ClearMatches();
+   bool StepCellsDown();
+
+   bool no_valid_moves_ = false;
+
+   // Filled during ClearMatches to match all cells before clearing them
+   std::vector<int> world_clear_array_;
+   // Returns random number >= min <= max
+   static int InclusiveRandom(const int min, const int max)
    {
       return rand() % (max - min + 1) + min;
    }
-
-   GLuint* coloured_textures;
-   unsigned int VBO;
-   unsigned int VAO;
-   unsigned int EBO;
-   float vertices[20] = {
-      // positions                    // texture coords
-       0.5f,  0.5f, 0.0f,   1.0f, 1.0f, // top right
-       0.5f, -0.5f, 0.0f,   1.0f, 0.0f, // bottom right
-      -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, // bottom left
-      -0.5f,  0.5f, 0.0f,   0.0f, 1.0f  // top left 
-   };
-   unsigned int indices[6] = {
-       0, 1, 3, // first triangle
-       1, 2, 3  // second triangle
-   };
+   // OpenGL texture indexes
+   GLuint* coloured_textures_;
+   unsigned int vbo_;
+   unsigned int vao_;
+   unsigned int ebo_;
 };
 
-inline int Match3::CellIndex(int x, int y) const
+/// <summary> Returns the 1D Array cell index based on the X and Y passed in </summary>
+/// <returns>( (world_width * y) + x )</returns>
+inline int Match3::GetCellIndex(const int x, const int y) const
 {
-   return ((world_width * y) + x);
+   return ((g_world_width * y) + x);
 }
