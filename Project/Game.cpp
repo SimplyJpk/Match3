@@ -77,13 +77,13 @@ void Game::Run()
 
       match3->Update(deltaTime);
 
-      if (isLockInputOn || InputManager::Instance()->GetKeyDown(KeyCode::A))
+      if (isLockInputOn || input_manager->GetKeyDown(KeyCode::A))
          match3->ProgressGame();
-
-      if (InputManager::Instance()->GetKeyDown(KeyCode::P))
+      if (input_manager->GetKeyDown(KeyCode::L))
+         match3->g_print_ai_moves = !match3->g_print_ai_moves;
+      if (input_manager->GetKeyDown(KeyCode::P))
          match3->PrintWorldAsText();
-
-      if (InputManager::Instance()->GetKeyDown(KeyCode::Space))
+      if (input_manager->GetKeyDown(KeyCode::Space))
          isLockInputOn = !isLockInputOn;
 
       //? ======

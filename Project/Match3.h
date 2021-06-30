@@ -26,6 +26,8 @@ public:
    int g_world_total_size;
    int g_cell_types_used = 0;
 
+   bool g_print_ai_moves = true;
+
    Match3(GameSettings* settings);
 
    // Required by Technical Sheet

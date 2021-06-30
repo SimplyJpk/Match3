@@ -51,7 +51,7 @@ void Match3::PrintWorldAsText() const
       {
          for (int x = 0; x < g_world_width; x++)
          {
-            printf("%i", world_data_[GetCellIndex(x, y)]);
+            printf("%i ", world_data_[GetCellIndex(x, y)]);
          }
          printf("\n");
       }
@@ -92,9 +92,13 @@ bool Match3::Step(const IVec2 from_cell, const IVec2 to_cell)
    if (!FloatsEqual(IVec2::Distance(from_cell, to_cell), 1.0f))
       return false;
 
+   // Dirty check for matches
+   //TODO Improve this at some point, we shouldn't itterate over the whole world
    SwapCellValues(from_cell, to_cell);
    if (CheckForMatches())
    {
+      if (g_print_ai_moves)
+         PrintWorldAsText();
       return true;
    }
    else
@@ -124,6 +128,7 @@ void Match3::ProgressGame()
          }
          else
          {
+            // We give one step of pause to indicate a lack of moves before resetting.
             if (no_valid_moves_) {
                ResetWorld();
             }
@@ -200,11 +205,11 @@ void Match3::ResetWorld()
 }
 
 /// <summary> Returns true if any 'legal' matches exist.
-/// Note: This could be much better, it could be made into a pretty tight loop given it is all index lookups, but it wouldn't be very readable. </summary>
+/// Note: This could be much better, it could be made into a pretty tight loop given it is all index lookups, but it wouldn't be very readable.
+/// Note: This also has a huge bias towards Vertical moves.</summary>
 bool Match3::AnyLegalMatchesExist(IVec2 move[])
 {
    // Check for valid moves
-   //
    // Vertical Moves
    for (int y = 0; y < g_world_height; y++)
    {
