@@ -1,7 +1,7 @@
 #pragma once
 #include <cstdio>
 #include <SDL_stdinc.h>
-#include <GL/glew.h>
+#include "GL/glew.h"
 
 
 #include "CellTypes.h"

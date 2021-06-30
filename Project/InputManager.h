@@ -2,7 +2,6 @@
 #include "SDL.h"
 #include "Math.h"
 #include <backends/imgui_impl_sdl.h>
-#include <algorithm>
 #include <vector>
 
 
