@@ -167,12 +167,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="shaders\orthoUI.frag">
-      <Filter>Resource Files\shaders</Filter>
-    </None>
-    <None Include="shaders\orthoUI.vert">
-      <Filter>Resource Files\shaders</Filter>
-    </None>
     <None Include="shaders\orthoWorld.frag">
       <Filter>Resource Files\shaders</Filter>
     </None>
