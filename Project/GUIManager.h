@@ -28,11 +28,11 @@ public:
 
       g_extraInfo = guiInfo;
 
-      ImGui::SetWindowSize("Debug Window", ImVec2(240, 240));
-      ImGui::SetWindowPos("Debug Window", ImVec2(settings_->screen_size.x - 245, 15));
+      ImGui::SetWindowSize("Debug Window", ImVec2(205, 82));
+      ImGui::SetWindowPos("Debug Window", ImVec2(474, 532));
 
-      ImGui::SetWindowSize("Frame Data", ImVec2(240, 240));
-      ImGui::SetWindowPos("Frame Data", ImVec2(settings_->screen_size.x - 245, 275));
+      ImGui::SetWindowSize("Information", ImVec2(417, 200));
+      ImGui::SetWindowPos("Information", ImVec2(18, 515));
       g_window = window;
    }
 
@@ -52,10 +52,14 @@ public:
 
    void DrawFrameData()
    {
-      ImGui::Begin("Frame Data");
+      ImGui::Begin("Information");
 
-      ImGui::Text("Target FPS %0.2f", settings_->target_frames_per_second);
-      ImGui::Text("Max Frame Delay: %0.2f", settings_->calculated_frame_delay);
+      // Match3 Relevant Info
+      ImGui::Text("Cell Moved From:\n(%i,%i) -> (%i,%i)", g_extraInfo->last_cell_moved_from.x, g_extraInfo->last_cell_moved_from.y, g_extraInfo->last_cell_moved_to.x, g_extraInfo->last_cell_moved_to.y);
+      ImGui::Text("HighScore: %i", (g_extraInfo->game_score > g_extraInfo->game_high_score ? g_extraInfo->game_score : g_extraInfo->game_high_score));
+      ImGui::Text("Game Score: %i", g_extraInfo->game_score);
+      ImGui::Text("Moves Since last reset: %i", g_extraInfo->moves_since_last_reset);
+      ImGui::Text("Restarts next Step: %i", g_extraInfo->next_frame_restarts);
 
       ImGui::Text("Key 'A': Step Game");
       ImGui::Text("Key 'L': Toggle AI log");
@@ -71,12 +75,9 @@ public:
       ImGui::Begin("Debug Window");
       ImGui::Text("Screen Size: W-%i\tH-%i", settings_->screen_size.x, settings_->screen_size.y);
 
-      // Match3 Relevant Info
-      ImGui::Text("Cell Moved From:\n(%i,%i) -> (%i,%i)", g_extraInfo->last_cell_moved_from.x, g_extraInfo->last_cell_moved_from.y, g_extraInfo->last_cell_moved_to.x, g_extraInfo->last_cell_moved_to.y);
-      ImGui::Text("HighScore: %i", (g_extraInfo->game_score > g_extraInfo->game_high_score ? g_extraInfo->game_score : g_extraInfo->game_high_score));
-      ImGui::Text("Game Score: %i", g_extraInfo->game_score);
-      ImGui::Text("Moves Since last reset: %i", g_extraInfo->moves_since_last_reset);
-      ImGui::Text("Restarts next Step: %i", g_extraInfo->next_frame_restarts);
+
+      ImGui::Text("Target FPS %0.2f", settings_->target_frames_per_second);
+      ImGui::Text("Max Frame Delay: %0.2f", settings_->calculated_frame_delay);
       ImGui::End();
    }
 

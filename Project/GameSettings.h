@@ -22,6 +22,9 @@ struct GameSettings
    float target_frames_per_second = 60.0f;
    float calculated_frame_delay = 1000.0f / target_frames_per_second;
 
+   int cell_types_used = 5;
+   IVec2 world_size = IVec2(8,8);
+
    void LoadSettings(ConfigFile& config)
    {
       screen_size.x = config.screen_x;
@@ -35,5 +38,10 @@ struct GameSettings
 
       target_fixed_updates_per_second = config.target_fixed_updates_per_second;
       fixed_update_time = 1000.0 / target_fixed_updates_per_second;
+
+      // Game Related
+      cell_types_used = config.cell_types_used;
+
+      world_size = IVec2(config.world_size_x, config.world_size_y);
    };
 };

@@ -402,7 +402,7 @@ short Match3::CheckMatches(const int x, const int y)
 
 void Match3::Start()
 {
-   GeneratePlayField(8, 8, 5);
+   GeneratePlayField(game_settings->world_size.x, game_settings->world_size.y, game_settings->cell_types_used);
    PrintWorldAsText();
 }
 
