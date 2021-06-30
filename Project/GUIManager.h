@@ -57,6 +57,11 @@ public:
       ImGui::Text("Target FPS %0.2f", settings_->target_frames_per_second);
       ImGui::Text("Max Frame Delay: %0.2f", settings_->calculated_frame_delay);
 
+      ImGui::Text("Key 'A': Step Game");
+      ImGui::Text("Key 'L': Toggle AI log");
+      ImGui::Text("Key 'P': Print world to console");
+      ImGui::Text("Key 'Space': Toggles AI Lock (Steps without 'A' input)");
+
       ImGui::End();
    }
 

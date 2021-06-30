@@ -220,18 +220,18 @@ bool Match3::AnyLegalMatchesExist(IVec2 move[])
             continue;
 
          // Cell to left
-         int CellA = GetCellIndex(x - 1, y);
+         const int cellA = GetCellIndex(x - 1, y);
          // Cell to right
-         int CellC = GetCellIndex(x + 1, y);
+         const int cellC = GetCellIndex(x + 1, y);
 
          // Moving Down from Above
          if (IsValidCell(x, y - 1))
          {
             const int movingCellsIndex = GetCellIndex(x, y - 1);
             if (
-               IsMatch(CellA, movingCellsIndex, CellC) ||
-               IsValidCell(x - 2, y) && IsMatch(GetCellIndex(x - 2, y), movingCellsIndex, CellA) ||
-               IsValidCell(x + 2, y) && IsMatch(GetCellIndex(x + 2, y), movingCellsIndex, CellC))
+               IsMatch(cellA, movingCellsIndex, cellC) ||
+               IsValidCell(x - 2, y) && IsMatch(GetCellIndex(x - 2, y), movingCellsIndex, cellA) ||
+               IsValidCell(x + 2, y) && IsMatch(GetCellIndex(x + 2, y), movingCellsIndex, cellC))
             {
                if (move != nullptr)
                {
@@ -246,9 +246,9 @@ bool Match3::AnyLegalMatchesExist(IVec2 move[])
          {
             const int movingCellsIndex = GetCellIndex(x, y + 1);
             if (
-               IsMatch(CellA, movingCellsIndex, CellC) || // Middle
-               IsValidCell(x - 2, y) && IsMatch(GetCellIndex(x - 2, y), movingCellsIndex, CellA) || // Right End
-               IsValidCell(x + 2, y) && IsMatch(GetCellIndex(x + 2, y), movingCellsIndex, CellC)) // Left End
+               IsMatch(cellA, movingCellsIndex, cellC) || // Middle
+               IsValidCell(x - 2, y) && IsMatch(GetCellIndex(x - 2, y), movingCellsIndex, cellA) || // Right End
+               IsValidCell(x + 2, y) && IsMatch(GetCellIndex(x + 2, y), movingCellsIndex, cellC)) // Left End
             {
                if (move != nullptr)
                {
@@ -270,17 +270,17 @@ bool Match3::AnyLegalMatchesExist(IVec2 move[])
             continue;
 
          // Cell Above
-         int CellA = GetCellIndex(x, y - 1);
+         const int cellA = GetCellIndex(x, y - 1);
          // Cell Below
-         int CellC = GetCellIndex(x, y + 1);
+         const int cellC = GetCellIndex(x, y + 1);
 
          if (IsValidCell(x - 1, y))
          {
             const int movingCellsIndex = GetCellIndex(x - 1, y);
             if (
-               IsMatch(CellA, movingCellsIndex, CellC) ||
-               IsValidCell(x, y - 2) && IsMatch(GetCellIndex(x, y - 2), movingCellsIndex, CellA) ||
-               IsValidCell(x, y + 2) && IsMatch(GetCellIndex(x, y + 2), movingCellsIndex, CellC))
+               IsMatch(cellA, movingCellsIndex, cellC) ||
+               IsValidCell(x, y - 2) && IsMatch(GetCellIndex(x, y - 2), movingCellsIndex, cellA) ||
+               IsValidCell(x, y + 2) && IsMatch(GetCellIndex(x, y + 2), movingCellsIndex, cellC))
             {
                if (move != nullptr)
                {
@@ -294,9 +294,9 @@ bool Match3::AnyLegalMatchesExist(IVec2 move[])
          if (IsValidCell(x + 1, y))
          {
             const int movingCellsIndex = GetCellIndex(x + 1, y);
-            if (IsMatch(CellA, GetCellIndex(x + 1, y), CellC) ||
-               IsValidCell(x, y - 2) && IsMatch(GetCellIndex(x, y - 2), movingCellsIndex, CellA) ||
-               IsValidCell(x, y + 2) && IsMatch(GetCellIndex(x, y + 2), movingCellsIndex, CellC))
+            if (IsMatch(cellA, GetCellIndex(x + 1, y), cellC) ||
+               IsValidCell(x, y - 2) && IsMatch(GetCellIndex(x, y - 2), movingCellsIndex, cellA) ||
+               IsValidCell(x, y + 2) && IsMatch(GetCellIndex(x, y + 2), movingCellsIndex, cellC))
             {
                if (move != nullptr)
                {
@@ -327,12 +327,11 @@ bool Match3::IsValidCell(const int x, const int y) const
 bool Match3::ClearMatches()
 {
    bool isChanged = false;
-
    for (int y = 0; y < g_world_height; y++)
    {
       for (int x = 0; x < g_world_width; x++)
       {
-         short result = CheckMatches(x, y);
+         const short result = CheckMatches(x, y);
          if (result == MatchType::VERTICAL)
          {
             world_clear_array_.push_back(GetCellIndex(x, y));
@@ -376,7 +375,7 @@ bool Match3::CheckForMatches()
    {
       for (int x = 0; x < g_world_width; x++)
       {
-         if (CheckMatches(x, y) != 0)
+         if (CheckMatches(x, y))
          {
             return true;
          }
@@ -411,11 +410,11 @@ bool Match3::Draw(Camera* camera)
 {
    const IVec2 screenSize = game_settings->screen_size;
 
-   const int cell_spacing = 32;
-   const int cell_extra_space = 16;
+   const int cellSpacing = 32;
+   const int cellExtraSpace = 16;
 
-   const IVec2 moved_from = g_extraInfo.last_cell_moved_from;
-   const IVec2 moved_to = g_extraInfo.last_cell_moved_to;
+   const IVec2 movedFrom = g_extraInfo.last_cell_moved_from;
+   const IVec2 movedTo = g_extraInfo.last_cell_moved_to;
 
    // All use same shader
    glUseProgram(game_settings->default_shader);
@@ -428,16 +427,16 @@ bool Match3::Draw(Camera* camera)
 
          glm::mat4 model = glm::mat4(1.0f);
          //TODO Fix this
-         glm::vec3 modelPosition = glm::vec3(cell_extra_space + (cell_screen_size / 2) + ((cell_screen_size + cell_spacing) * x), screenSize.y - (cell_extra_space + (cell_screen_size / 2) + ((cell_screen_size + cell_spacing) * y)), 1.0f);
+         glm::vec3 modelPosition = glm::vec3(cellExtraSpace + (cell_screen_size / 2) + ((cell_screen_size + cellSpacing) * x), screenSize.y - (cellExtraSpace + (cell_screen_size / 2) + ((cell_screen_size + cellSpacing) * y)), 1.0f);
          model = glm::translate(model, modelPosition);
 
-         float movedScaleMultiplier = ((x == moved_from.x && y == moved_from.y) || (x == moved_to.x && y == moved_to.y)) ? 1.5f : 1.0f;
+         const float movedScaleMultiplier = ((x == movedFrom.x && y == movedFrom.y) || (x == movedTo.x && y == movedTo.y)) ? 1.5f : 1.0f;
 
          model = glm::scale(model, glm::vec3(cell_screen_size * movedScaleMultiplier, cell_screen_size * movedScaleMultiplier, 1.0f));
 
-         int modelLoc = glGetUniformLocation(game_settings->default_shader, "model");
+         const int modelLoc = glGetUniformLocation(game_settings->default_shader, "model");
          glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-         int projLoc = glGetUniformLocation(game_settings->default_shader, "projection");
+         const int projLoc = glGetUniformLocation(game_settings->default_shader, "projection");
          glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(camera->GetProjection()));
 
          glBindVertexArray(vao_);

@@ -31,6 +31,12 @@ bool Game::Initialize(SDL_GLContext* gl_context, SDL_Window* gl_window, GameSett
    // Camera
    main_cam.SetOrtho(0, game_settings->screen_size.x, 0, game_settings->screen_size.y);
 
+   printf("User Inputs:");
+   printf("Key 'A': Step Game");
+   printf("Key 'L': Toggle AI log");
+   printf("Key 'P': Print world to console");
+   printf("Key 'Space': Toggles AI Lock (Steps without 'A' input)");
+
    return true;
 }
 
