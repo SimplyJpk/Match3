@@ -233,11 +233,8 @@ bool Match3::AnyLegalMatchesExist(IVec2 move[])
                IsValidCell(x - 2, y) && IsMatch(GetCellIndex(x - 2, y), movingCellsIndex, cellA) ||
                IsValidCell(x + 2, y) && IsMatch(GetCellIndex(x + 2, y), movingCellsIndex, cellC))
             {
-               if (move != nullptr)
-               {
-                  move[CellMove::TO] = IVec2(x, y);
-                  move[CellMove::FROM] = IVec2(x, y - 1);
-               }
+               move[CellMove::TO] = IVec2(x, y);
+               move[CellMove::FROM] = IVec2(x, y - 1);
                return true;
             }
          }
@@ -250,11 +247,8 @@ bool Match3::AnyLegalMatchesExist(IVec2 move[])
                IsValidCell(x - 2, y) && IsMatch(GetCellIndex(x - 2, y), movingCellsIndex, cellA) || // Right End
                IsValidCell(x + 2, y) && IsMatch(GetCellIndex(x + 2, y), movingCellsIndex, cellC)) // Left End
             {
-               if (move != nullptr)
-               {
                   move[CellMove::TO] = IVec2(x, y);
                   move[CellMove::FROM] = IVec2(x, y + 1);
-               }
                return true;
             }
          }
@@ -282,11 +276,8 @@ bool Match3::AnyLegalMatchesExist(IVec2 move[])
                IsValidCell(x, y - 2) && IsMatch(GetCellIndex(x, y - 2), movingCellsIndex, cellA) ||
                IsValidCell(x, y + 2) && IsMatch(GetCellIndex(x, y + 2), movingCellsIndex, cellC))
             {
-               if (move != nullptr)
-               {
-                  move[CellMove::TO] = IVec2(x, y);
-                  move[CellMove::FROM] = IVec2(x - 1, y);
-               }
+               move[CellMove::TO] = IVec2(x, y);
+               move[CellMove::FROM] = IVec2(x - 1, y);
                return true;
             }
          }
@@ -298,11 +289,8 @@ bool Match3::AnyLegalMatchesExist(IVec2 move[])
                IsValidCell(x, y - 2) && IsMatch(GetCellIndex(x, y - 2), movingCellsIndex, cellA) ||
                IsValidCell(x, y + 2) && IsMatch(GetCellIndex(x, y + 2), movingCellsIndex, cellC))
             {
-               if (move != nullptr)
-               {
-                  move[CellMove::TO] = IVec2(x, y);
-                  move[CellMove::FROM] = IVec2(x + 1, y);
-               }
+               move[CellMove::TO] = IVec2(x, y);
+               move[CellMove::FROM] = IVec2(x + 1, y);
                return true;
             }
          }
