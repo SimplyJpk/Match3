@@ -1,26 +1,20 @@
 #pragma once
 // ImGUI
-#include <gl/GLEW.h>
 #include "imgui.h"
 #include <backends/imgui_impl_sdl.h>
 #include <backends/imgui_impl_opengl3.h>
 #include <SDL.h>
 
 #include "GameSettings.h"
-#include "Constants.h"
+#include "ExtraInfoGUI.h"
 
 class GuiManager
 {
 public:
-   //Temp Colours
-   ImVec4 red = ImVec4(1, 0, 0, 1);
-   ImVec4 green = ImVec4(0, 1, 0, 1);
-
    SDL_Window* g_window;
+   ExtraInfoGUI* g_extraInfo;
 
-   float plotData[100];
-
-   GuiManager(GameSettings* settings, SDL_Window* window, SDL_GLContext* context)
+   GuiManager(GameSettings* settings, SDL_Window* window, SDL_GLContext* context, ExtraInfoGUI* guiInfo)
    {
       settings_ = settings;
 
@@ -31,6 +25,8 @@ public:
 
       ImGui_ImplSDL2_InitForOpenGL(window, context);
       ImGui_ImplOpenGL3_Init();
+
+      g_extraInfo = guiInfo;
 
       ImGui::SetWindowSize("Debug Window", ImVec2(240, 240));
       ImGui::SetWindowPos("Debug Window", ImVec2(settings_->screen_size.x - 245, 15));
@@ -69,6 +65,13 @@ public:
       DrawFrameData();
       ImGui::Begin("Debug Window");
       ImGui::Text("Screen Size: W-%i\tH-%i", settings_->screen_size.x, settings_->screen_size.y);
+
+      // Match3 Relevant Info
+      ImGui::Text("Cell Moved From:\n(%i,%i) -> (%i,%i)", g_extraInfo->last_cell_moved_from.x, g_extraInfo->last_cell_moved_from.y, g_extraInfo->last_cell_moved_to.x, g_extraInfo->last_cell_moved_to.y);
+      ImGui::Text("HighScore: %i", (g_extraInfo->game_score > g_extraInfo->game_high_score ? g_extraInfo->game_score : g_extraInfo->game_high_score));
+      ImGui::Text("Game Score: %i", g_extraInfo->game_score);
+      ImGui::Text("Moves Since last reset: %i", g_extraInfo->moves_since_last_reset);
+      ImGui::Text("Restarts next Step: %i", g_extraInfo->next_frame_restarts);
       ImGui::End();
    }
 
