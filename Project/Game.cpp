@@ -1,7 +1,5 @@
 #include "Game.h"
 
-#include "Match3.h"
-
 typedef ShaderManager::ShaderTypes ShaderType;
 
 bool Game::Initialize(SDL_GLContext* gl_context, SDL_Window* gl_window, GameSettings* settings)
@@ -23,15 +21,15 @@ bool Game::Initialize(SDL_GLContext* gl_context, SDL_Window* gl_window, GameSett
    defaultShader = ShaderManager::Instance()->CreateShaderProgram("orthoWorld", false);
    game_settings->default_shader = defaultShader;
 
+   match3 = new Match3(settings);
+
    // Initialize ImGUI
-   gui_manager = new GuiManager(game_settings, g_window, g_context);
+   gui_manager = new GuiManager(game_settings, g_window, g_context, &match3->g_extraInfo);
 
    // Input
    input_manager = InputManager::Instance();
    // Camera
    main_cam.SetOrtho(0, game_settings->screen_size.x, 0, game_settings->screen_size.y);
-
-   match3 = new Match3(settings);
 
    return true;
 }
@@ -52,6 +50,7 @@ void Game::Run()
    int frameCounter = 0;
 
    match3->Start();
+   bool isLockInputOn = false;
 
    while (!input_manager->IsShuttingDown())
    {
@@ -78,8 +77,14 @@ void Game::Run()
 
       match3->Update(deltaTime);
 
-      if (InputManager::Instance()->GetKeyDown(KeyCode::A))
+      if (isLockInputOn || InputManager::Instance()->GetKeyDown(KeyCode::A))
          match3->ProgressGame();
+
+      if (InputManager::Instance()->GetKeyDown(KeyCode::P))
+         match3->PrintWorldAsText();
+
+      if (InputManager::Instance()->GetKeyDown(KeyCode::Space))
+         isLockInputOn = !isLockInputOn;
 
       //? ======
       //! Render

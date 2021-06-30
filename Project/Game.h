@@ -5,8 +5,6 @@
 #include "ShaderManager.h"
 #include "InputManager.h"
 
-#include <chrono>
-
 #include "Camera.h"
 #include "Match3.h"
 

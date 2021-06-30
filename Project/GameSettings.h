@@ -27,7 +27,7 @@ struct GameSettings
       screen_size.x = config.screen_x;
       screen_size.y = config.screen_y;
       // Set aspect ratio for future use
-      aspect_ratio = screen_size.x / static_cast<float>(screen_size.y);
+      aspect_ratio = screen_size.x / screen_size.y;
       // Target updates from config (FPS)
       target_frames_per_second = config.target_frames_per_second;
 

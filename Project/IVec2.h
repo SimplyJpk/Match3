@@ -28,6 +28,7 @@ public:
    IVec2 operator +(const IVec2& other) const;
    IVec2 operator -(const IVec2& other) const;
    IVec2 operator =(const IVec2 other);
+   bool operator !=(const IVec2& other) const;
    IVec2 operator *(const float rhs) const;
 
    bool operator==(const IVec2& other) const
@@ -56,6 +57,11 @@ inline IVec2 IVec2::operator=(const IVec2 other)
    this->x = other.x;
    this->y = other.y;
    return *this;
+}
+
+inline bool IVec2::operator!=(const IVec2& other) const
+{
+   return (this->x == other.x && this->y == other.y);
 }
 
 inline IVec2 IVec2::operator*(const float rhs) const
