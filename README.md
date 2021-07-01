@@ -16,7 +16,7 @@ The next step will consume valid matches and each step after will move cells dow
 
 #### Known Problems:
 - 'AI' will do any Vertical move before any available Horizontal moves
-- For some reason I made all matches work from the middle, so no Edge matches could work. A crude fix was made with what limited time I gave myself to complete.
+- For some reason I made all matches work from the middle, so no Edge matches could work. A crude fix was made with what limited time I gave myself to complete so time complexity to solve problem is larger than a much more possbile solution.
 
 #### Visual Demonstration:
 
