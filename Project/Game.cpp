@@ -22,6 +22,7 @@ bool Game::Initialize(SDL_GLContext* gl_context, SDL_Window* gl_window, GameSett
    game_settings->default_shader = defaultShader;
 
    match3 = new Match3(settings);
+   player = new Player();
 
    // Initialize ImGUI
    gui_manager = new GuiManager(game_settings, g_window, g_context, &match3->g_extraInfo);
@@ -55,8 +56,13 @@ void Game::Run()
    auto secondCounter = clock::now();
    int frameCounter = 0;
 
+   std::vector<GameObject*> gameObjects;
+   // Match 3 Specific
    match3->Start();
-   bool isLockInputOn = false;
+   player->NewGame(match3);
+
+   gameObjects.push_back(match3);
+   gameObjects.push_back(player);
 
    while (!input_manager->IsShuttingDown())
    {
@@ -81,16 +87,15 @@ void Game::Run()
       input_manager->Update();
       if (input_manager->IsShuttingDown()) break;
 
-      match3->Update(deltaTime);
+      for (auto* gameObject : gameObjects)
+      {
+         gameObject->Update(deltaTime);
+      }
 
-      if (isLockInputOn || input_manager->GetKeyDown(KeyCode::A))
-         match3->ProgressGame();
       if (input_manager->GetKeyDown(KeyCode::L))
          match3->g_print_ai_moves = !match3->g_print_ai_moves;
       if (input_manager->GetKeyDown(KeyCode::P))
          match3->PrintWorldAsText();
-      if (input_manager->GetKeyDown(KeyCode::Space))
-         isLockInputOn = !isLockInputOn;
 
       //? ======
       //! Render

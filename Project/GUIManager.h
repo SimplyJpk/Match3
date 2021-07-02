@@ -60,11 +60,12 @@ public:
       ImGui::Text("Game Score: %i", g_extraInfo->game_score);
       ImGui::Text("Moves Since last reset: %i", g_extraInfo->moves_since_last_reset);
       ImGui::Text("Restarts next Step: %i", g_extraInfo->next_frame_restarts);
+      ImGui::Text("Next Game Step: %0.3f", g_extraInfo->world_step_cooldown);
 
       ImGui::Text("Key 'A': Step Game");
       ImGui::Text("Key 'L': Toggle AI log");
       ImGui::Text("Key 'P': Print world to console");
-      ImGui::Text("Key 'Space': Toggles AI Lock (Steps without 'A' input)");
+      ImGui::Text("Key 'Space': Toggle between 50ms and 250ms Game Step Time");
 
       ImGui::End();
    }

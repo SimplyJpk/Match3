@@ -162,6 +162,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Player.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="ImGUI\backends\imgui_impl_opengl3.cpp" />
@@ -177,6 +178,8 @@
     <ClCompile Include="ShaderManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="GameRules.h" />
+    <ClInclude Include="Player.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CellTypes.h" />
     <ClInclude Include="ConfigFile.h" />

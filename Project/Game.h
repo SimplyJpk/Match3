@@ -7,6 +7,7 @@
 
 #include "Camera.h"
 #include "Match3.h"
+#include "Player.h"
 
 class Game
 {
@@ -18,6 +19,7 @@ class Game
    InputManager* input_manager;
 
    Match3* match3;
+   Player* player;
    Camera main_cam;
 
    GLint defaultShader;

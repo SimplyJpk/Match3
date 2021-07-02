@@ -15,6 +15,7 @@ public:
    int moves_since_last_reset = 0;
 
    bool next_frame_restarts = false;
+   float world_step_cooldown = 0.0f;
 
    void AddPoint()
    {
@@ -38,5 +39,6 @@ public:
       moves_since_last_reset = 0;
       ClearMovedCells();
       next_frame_restarts = false;
+      world_step_cooldown = 0.0f;
    }
 };

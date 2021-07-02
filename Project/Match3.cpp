@@ -1,7 +1,8 @@
 #include "Match3.h"
 #include "FloatExtensions.h"
+#include "InputManager.h"
 
-Match3::Match3(GameSettings* settings): g_world_width(0), g_world_height(0), g_world_total_size(0)
+Match3::Match3(GameSettings* settings)
 {
    game_settings = settings;
 
@@ -42,14 +43,19 @@ Match3::Match3(GameSettings* settings): g_world_width(0), g_world_height(0), g_w
    glEnableVertexAttribArray(1);
 }
 
+const GameRules* Match3::GetRules() const
+{
+   return &game_rules_;
+}
+
 void Match3::PrintWorldAsText() const
 {
    printf("-----\n");
-   if (g_world_total_size != 0)
+   if (game_rules_.world_size_total != 0)
    {
-      for (int y = 0; y < g_world_height; y++) 
+      for (int y = 0; y < game_rules_.world_height; y++) 
       {
-         for (int x = 0; x < g_world_width; x++)
+         for (int x = 0; x < game_rules_.world_width; x++)
          {
             printf("%i ", world_data_[GetCellIndex(x, y)]);
          }
@@ -63,16 +69,17 @@ bool Match3::GeneratePlayField(Uint32 width, Uint32 height, Uint32 numTypes)
    // Reset GUI Info
    g_extraInfo.Clear();
 
-   // Game Stuff
-   g_world_width = width;
-   g_world_height = height;
-   g_world_total_size = g_world_width * g_world_height;
    if (numTypes > CELL_TYPE_COUNT)
       numTypes = CELL_TYPE_COUNT;
 
-   g_cell_types_used = numTypes;
+   // Game Stuff
+   game_rules_.world_width = width;
+   game_rules_.world_height = height;
+   game_rules_.world_size_total = width * height;
+   game_rules_.cell_types_used = numTypes;
+
    if (world_data_ == nullptr) {
-      world_data_ = new int[g_world_total_size]{0};
+      world_data_ = new int[game_rules_.world_size_total]{0};
    }
 
    // Clear all tiles
@@ -82,8 +89,15 @@ bool Match3::GeneratePlayField(Uint32 width, Uint32 height, Uint32 numTypes)
    return true;
 }
 
+bool Match3::IsReadyForMove() const
+{
+   return is_ready_for_move_;
+}
+
 bool Match3::Step(const IVec2 from_cell, const IVec2 to_cell)
 {
+   world_update_cooldown_x_ = world_update_rate_ * 2.0f;
+   g_extraInfo.ClearMovedCells();
    // Check cells being passed in are valid cells
    if (!(IsValidCell(from_cell.x, from_cell.y) || IsValidCell(to_cell.x, to_cell.y)))
       return false;
@@ -97,15 +111,15 @@ bool Match3::Step(const IVec2 from_cell, const IVec2 to_cell)
    SwapCellValues(from_cell, to_cell);
    if (CheckForMatches())
    {
+      is_ready_for_move_ = false;
+      g_extraInfo.moves_since_last_reset++;
+
       if (g_print_ai_moves)
          PrintWorldAsText();
       return true;
    }
-   else
-   {
-      SwapCellValues(from_cell, to_cell);
-      return false;
-   }
+   SwapCellValues(from_cell, to_cell);
+   return false;
 }
 
 /// <summary>
@@ -113,33 +127,27 @@ bool Match3::Step(const IVec2 from_cell, const IVec2 to_cell)
 /// </summary>
 void Match3::ProgressGame()
 {
-   g_extraInfo.ClearMovedCells();
-
    // We try to move the cells down
-   if (!StepCellsDown())
+   if (!StepCellsDown() && !ClearMatches())
    {
-      // If we don't we try clear matches, if we do have a match we wait for the next input to "Step" makes matches easier to follow
-      if (!ClearMatches()) {
-         IVec2 nextMove[2];
-         // Check for legal moves and return the first one found
-         if (AnyLegalMatchesExist(nextMove)) {
-            g_extraInfo.moves_since_last_reset++;
-            Step(nextMove[CellMove::FROM], nextMove[CellMove::TO]);
+      is_ready_for_move_ = true;
+      // Check for legal moves and return the first one found
+      if (!AnyLegalMatchesExist())
+      {
+         // We give one step of pause to indicate a lack of moves before resetting.
+         if (no_valid_moves_) {
+            ResetWorld();
          }
          else
          {
-            // We give one step of pause to indicate a lack of moves before resetting.
-            if (no_valid_moves_) {
-               ResetWorld();
-            }
-            else
-            {
-               no_valid_moves_ = true;
-               g_extraInfo.next_frame_restarts = true;
-            }
+            no_valid_moves_ = true;
+            g_extraInfo.next_frame_restarts = true;
          }
       }
    }
+   else
+      is_ready_for_move_ = false;
+
    CreateCellsMissingInRow(0);
 }
 
@@ -150,9 +158,9 @@ void Match3::ProgressGame()
 bool Match3::StepCellsDown()
 {
    bool isChanged = false;
-   for (int y = g_world_height - 1; y >= 0; y--)
+   for (int y = game_rules_.world_height - 1; y >= 0; y--)
    {
-      for (int x = 0; x < g_world_width; x++)
+      for (int x = 0; x < game_rules_.world_width; x++)
       {
          if (world_data_[GetCellIndex(x, y)] != EMPTY && world_data_[GetCellIndex(x, y + 1)] == EMPTY)
          {
@@ -170,7 +178,7 @@ bool Match3::StepCellsDown()
 bool Match3::CreateCellsMissingInRow(int row = 0)
 {
    bool isChanged = false;
-   for (int x = 0; x < g_world_width; x++)
+   for (int x = 0; x < game_rules_.world_width; x++)
    {
       if (world_data_[GetCellIndex(x, row)] == EMPTY)
       {
@@ -184,9 +192,9 @@ bool Match3::CreateCellsMissingInRow(int row = 0)
 /// <summary> Sets all cells to the type passed in, if RANDOM is passed in, all cells are set to a random type </summary>
 void Match3::SetWorldCells(CellTypes type)
 {
-   for (int y = 0; y < g_world_height; y++)
+   for (int y = 0; y < game_rules_.world_height; y++)
    {
-      for (int x = 0; x < g_world_width; x++)
+      for (int x = 0; x < game_rules_.world_width; x++)
       {
          world_data_[GetCellIndex(x, y)] = (type == RANDOM ? GetNewRandomCell() : type);
       }
@@ -211,9 +219,9 @@ bool Match3::AnyLegalMatchesExist(IVec2 move[])
 {
    // Check for valid moves
    // Vertical Moves
-   for (int y = 0; y < g_world_height; y++)
+   for (int y = 0; y < game_rules_.world_height; y++)
    {
-      for (int x = 0; x < g_world_width; x++)
+      for (int x = 0; x < game_rules_.world_width; x++)
       {
          // Check A and C
          if (!IsValidCell(x - 1, y) || !IsValidCell(x + 1, y))
@@ -233,8 +241,10 @@ bool Match3::AnyLegalMatchesExist(IVec2 move[])
                IsValidCell(x - 2, y) && IsMatch(GetCellIndex(x - 2, y), movingCellsIndex, cellA) ||
                IsValidCell(x + 2, y) && IsMatch(GetCellIndex(x + 2, y), movingCellsIndex, cellC))
             {
-               move[CellMove::TO] = IVec2(x, y);
-               move[CellMove::FROM] = IVec2(x, y - 1);
+               if (move != nullptr) {
+                  move[CellMove::TO] = IVec2(x, y);
+                  move[CellMove::FROM] = IVec2(x, y - 1);
+               }
                return true;
             }
          }
@@ -247,17 +257,19 @@ bool Match3::AnyLegalMatchesExist(IVec2 move[])
                IsValidCell(x - 2, y) && IsMatch(GetCellIndex(x - 2, y), movingCellsIndex, cellA) || // Right End
                IsValidCell(x + 2, y) && IsMatch(GetCellIndex(x + 2, y), movingCellsIndex, cellC)) // Left End
             {
+               if (move != nullptr) {
                   move[CellMove::TO] = IVec2(x, y);
                   move[CellMove::FROM] = IVec2(x, y + 1);
+               }
                return true;
             }
          }
       }
    }
          // Horizontal
-   for (int y = 0; y < g_world_height; y++)
+   for (int y = 0; y < game_rules_.world_height; y++)
    {
-      for (int x = 0; x < g_world_width; x++)
+      for (int x = 0; x < game_rules_.world_width; x++)
       {
          // Check A and C
          if (!IsValidCell(x, y - 1) || !IsValidCell(x, y + 1))
@@ -276,8 +288,10 @@ bool Match3::AnyLegalMatchesExist(IVec2 move[])
                IsValidCell(x, y - 2) && IsMatch(GetCellIndex(x, y - 2), movingCellsIndex, cellA) ||
                IsValidCell(x, y + 2) && IsMatch(GetCellIndex(x, y + 2), movingCellsIndex, cellC))
             {
-               move[CellMove::TO] = IVec2(x, y);
-               move[CellMove::FROM] = IVec2(x - 1, y);
+               if (move != nullptr) {
+                  move[CellMove::TO] = IVec2(x, y);
+                  move[CellMove::FROM] = IVec2(x - 1, y);
+               }
                return true;
             }
          }
@@ -289,8 +303,10 @@ bool Match3::AnyLegalMatchesExist(IVec2 move[])
                IsValidCell(x, y - 2) && IsMatch(GetCellIndex(x, y - 2), movingCellsIndex, cellA) ||
                IsValidCell(x, y + 2) && IsMatch(GetCellIndex(x, y + 2), movingCellsIndex, cellC))
             {
-               move[CellMove::TO] = IVec2(x, y);
-               move[CellMove::FROM] = IVec2(x + 1, y);
+               if (move != nullptr) {
+                  move[CellMove::TO] = IVec2(x, y);
+                  move[CellMove::FROM] = IVec2(x + 1, y);
+               }
                return true;
             }
          }
@@ -306,7 +322,7 @@ bool Match3::IsMatch(int cell_a, int cell_b, int cell_c)
 
 bool Match3::IsValidCell(const int x, const int y) const
 {
-   return (x >= 0 && x < g_world_width&& y >= 0 && y < g_world_height);
+   return (x >= 0 && x < game_rules_.world_width&& y >= 0 && y < game_rules_.world_height);
 }
 /// <summary> 
 ///  Searches world_data_ for >3 of a kind, and replaces them with Empty cells.
@@ -315,9 +331,9 @@ bool Match3::IsValidCell(const int x, const int y) const
 bool Match3::ClearMatches()
 {
    bool isChanged = false;
-   for (int y = 0; y < g_world_height; y++)
+   for (int y = 0; y < game_rules_.world_height; y++)
    {
-      for (int x = 0; x < g_world_width; x++)
+      for (int x = 0; x < game_rules_.world_width; x++)
       {
          const short result = CheckMatches(x, y);
          if (result == MatchType::VERTICAL)
@@ -337,6 +353,7 @@ bool Match3::ClearMatches()
 
    if (!world_clear_array_.empty()) {
       isChanged = true;
+      g_extraInfo.ClearMovedCells();
       for (auto index : world_clear_array_)
       {
          // Lazy tracking, we will have duplicates
@@ -359,9 +376,9 @@ bool Match3::ClearMatches()
 /// <returns>True if any matches are discovered</returns>
 bool Match3::CheckForMatches()
 {
-   for (int y = 0; y < g_world_height; y++)
+   for (int y = 0; y < game_rules_.world_height; y++)
    {
-      for (int x = 0; x < g_world_width; x++)
+      for (int x = 0; x < game_rules_.world_width; x++)
       {
          if (CheckMatches(x, y))
          {
@@ -406,9 +423,9 @@ bool Match3::Draw(Camera* camera)
 
    // All use same shader
    glUseProgram(game_settings->default_shader);
-   for (int y = 0; y < g_world_height; y++)
+   for (int y = 0; y < game_rules_.world_height; y++)
    {
-      for (int x = 0; x < g_world_width; x++)
+      for (int x = 0; x < game_rules_.world_width; x++)
       {
          glActiveTexture(GL_TEXTURE0);
          glBindTexture(GL_TEXTURE_2D, coloured_textures_[world_data_[GetCellIndex(x, y)]]);
@@ -435,6 +452,21 @@ bool Match3::Draw(Camera* camera)
    return true;
 }
 
+void Match3::Update(double delta)
+{
+   world_update_cooldown_x_ -= delta;
+   if (0.0 > world_update_cooldown_x_) {
+      world_update_cooldown_x_ = world_update_rate_;
+      ProgressGame();
+   }
+
+   if (InputManager::Instance()->GetKeyDown(KeyCode::Space))
+      world_update_rate_ = (world_update_rate_ == 250 ? 50 : 250);
+
+   // Update GUI Info
+   g_extraInfo.world_step_cooldown = world_update_cooldown_x_;
+}
+
 // Swaps the values in world_data at the related CellIndexes
 void Match3::SwapCellValues(IVec2 from_cell, IVec2 to_cell)
 {
@@ -450,5 +482,5 @@ void Match3::SwapCellValues(IVec2 from_cell, IVec2 to_cell)
 // Returns a value between 1 and the cell_types_used (inclusive)
 int Match3::GetNewRandomCell() const
 {
-   return InclusiveRandom(1, g_cell_types_used);
+   return InclusiveRandom(1, game_rules_.cell_types_used);
 }

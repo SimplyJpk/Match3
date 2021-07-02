@@ -10,6 +10,7 @@
 #include "IVec2.h"
 #include "Camera.h"
 #include "ExtraInfoGUI.h"
+#include "GameRules.h"
 
 class Match3 : public GameObject
 {
@@ -21,20 +22,19 @@ public:
 
    GameSettings* game_settings;
 
-   int g_world_width;
-   int g_world_height;
-   int g_world_total_size;
-   int g_cell_types_used = 0;
-
    bool g_print_ai_moves = true;
 
    Match3(GameSettings* settings);
+
+   const GameRules* GetRules() const;
 
    // Required by Technical Sheet
    void PrintWorldAsText() const;
    bool GeneratePlayField(Uint32 width, Uint32 height, Uint32 numTypes);
 
-   bool AnyLegalMatchesExist(IVec2 move[]);
+   bool IsReadyForMove() const;
+
+   bool AnyLegalMatchesExist(IVec2 move[] = nullptr);
    bool Step(IVec2 from_cell, IVec2 to_cell);
 
    // General Purpose
@@ -49,9 +49,15 @@ public:
    // Inherited
    void Start() override;
    bool Draw(Camera* camera) override;
+   void Update(double delta) override;
 
 private:
+   float world_update_rate_ = 250.0f;
+   float world_update_cooldown_x_ = 0.0f;
+   bool is_ready_for_move_ = false;
+
    int* world_data_ = nullptr;
+   GameRules game_rules_;
 
    void SwapCellValues(IVec2 from_cell, IVec2 to_cell);
    int GetNewRandomCell() const;
@@ -83,5 +89,5 @@ private:
 /// <returns>( (world_width * y) + x )</returns>
 inline int Match3::GetCellIndex(const int x, const int y) const
 {
-   return ((g_world_width * y) + x);
+   return ((game_rules_.world_width * y) + x);
 }
