@@ -8,7 +8,7 @@ The next step will consume valid matches and each step after will move cells dow
 - Key A : Step Game
 - Key L : Toggle AI Log
 - Key P : Print world as it is to Console.
-- Key Space : Toggles AI Lock (Steps without A Input)
+- Key Space : Toggles Game tick speed between 50ms and 250ms (250ms default) ~~AI Lock (Steps without A Input)~~
 
 #### Build:
 - Visual Studio can pull most packages using nuget.
