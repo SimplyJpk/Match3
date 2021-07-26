@@ -1,9 +1,7 @@
 #pragma once
-#include <gl/GLEW.h>
-#include <cstdio>
+#include <GL/glew.h>
 #include <string>
 #include <unordered_map>
-
 #include "IO.h"
 
 //TODO Way to combine shaders of different names.

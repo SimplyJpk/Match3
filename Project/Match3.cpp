@@ -452,7 +452,7 @@ bool Match3::Draw(Camera* camera)
    return true;
 }
 
-void Match3::Update(double delta)
+void Match3::Update(const double delta)
 {
    world_update_cooldown_x_ -= delta;
    if (0.0 > world_update_cooldown_x_) {
