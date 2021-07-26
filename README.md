@@ -11,8 +11,9 @@ The next step will consume valid matches and each step after will move cells dow
 - Key Space : Toggles Game tick speed between 50ms and 250ms (250ms default) ~~AI Lock (Steps without A Input)~~
 
 #### Build:
-- Visual Studio can pull most packages using nuget.
-- GLEW is required to compile/run
+To build, open the project using Visual Studio, and install the required packages using Nuget Package Manager or use Nuget Restore.
+Once the packages have been installed, you should be able to build the project without any additional libraries.
+~~- GLEW is required to compile/run~~
 
 #### Known Problems:
 - 'AI' will do any Vertical move before any available Horizontal moves
